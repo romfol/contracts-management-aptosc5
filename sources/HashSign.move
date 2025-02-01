@@ -56,7 +56,7 @@ module HashSign::hash_sign_01 {
             // Initialize an empty SimpleMap for documents
             documents: simple_map::create(),  
             // Initialize the document counter to 0
-            document_counter: YOUR_CODE_GOES_HERE, // ASSIGNMENT #1
+            document_counter: 0, 
         });
         // Create and store the EventStore
         move_to(account, EventStore {
@@ -70,9 +70,9 @@ module HashSign::hash_sign_01 {
     // Create a new document
     public entry fun create_document(creator: &signer, content_hash: String, signers: vector<address>) acquires GlobalDocumentStore, EventStore {
         // Get the creator's address
-        let creator_address = std::signer::YOUR_CODE_GOES_HERE(creator); // ASSIGNMENT #2
+        let creator_address = std::signer::address_of(creator); 
         // Borrow a mutable reference to the GlobalDocumentStore
-        let store = YOUR_CODE_GOES_HERE<GlobalDocumentStore>(@HashSign); // ASSIGNMENT #3
+        let store = borrow_global_mut<GlobalDocumentStore>(@HashSign); 
         // Borrow a mutable reference to the EventStore
         let event_store = borrow_global_mut<EventStore>(@HashSign);  
         
@@ -83,13 +83,13 @@ module HashSign::hash_sign_01 {
             // Store the provided content hash
             content_hash,
             // Store the creator's address  
-            creator: YOUR_CODE_GOES_HERE, // ASSIGNMENT #4
+            creator: std::signer::address_of(creator), 
             // Store the provided list of signers 
             signers,  
             // Initialize an empty vector for signatures
-            signatures: vector::YOUR_CODE_GOES_HERE(), // ASSIGNMENT #5
+            signatures: vector::empty<Signature>(), 
             // Set the document to false as not completed initially 
-            is_completed: YOUR_CODE_GOES_HERE,  // ASSIGNMENT #6
+            is_completed: false,  
         };
 
         // Add the new document to the documents map
@@ -102,15 +102,15 @@ module HashSign::hash_sign_01 {
         });
 
         // Increment the document counter for the next document creation
-        store.document_counter = YOUR_CODE_GOES_HERE; // ASSIGNMENT #7
+        store.document_counter = store.document_counter + 1; 
     }
 
     // Sign a document
     public entry fun sign_document(signer: &signer, document_id: u64) acquires GlobalDocumentStore, EventStore {
         // Get the signer's address
-        let signer_address = std::YOUR_CODE_GOES_HERE::address_of(signer); // ASSIGNMENT #8
+        let signer_address = std::signer::address_of(signer);
         // Borrow a mutable reference to the GlobalDocumentStore
-        let store = YOUR_CODE_GOES_HERE<GlobalDocumentStore>(@HashSign); // ASSIGNMENT #9
+        let store = borrow_global_mut<GlobalDocumentStore>(@HashSign);
         // Borrow a mutable reference to the EventStore
         let event_store = borrow_global_mut<EventStore>(@HashSign);
         
@@ -131,7 +131,7 @@ module HashSign::hash_sign_01 {
         };
 
         // Add the new signature to the document's signatures vector using push back
-        vector::YOUR_CODE_GOES_HERE(&mut document.signatures, signature); // ASSIGNMENT #10
+        vector::push_back(&mut document.signatures, signature);
 
         // Emit an event to signal the signing of the document
         event::emit_event(&mut event_store.sign_document_events, SignDocumentEvent {
@@ -142,7 +142,7 @@ module HashSign::hash_sign_01 {
         // Check if all signers have signed the document
         if (vector::length(&document.signatures) == vector::length(&document.signers)) {
             // If all signers have signed, mark the document as completed
-            document.is_completed = YOUR_CODE_GOES_HERE; // ASSIGNMENT #11
+            document.is_completed = true; 
         }
     }
 
@@ -150,7 +150,7 @@ module HashSign::hash_sign_01 {
     #[view]
     public fun get_document(document_id: u64): Document acquires GlobalDocumentStore {
         // Borrow a reference to the GlobalDocumentStore
-        let store = YOUR_CODE_GOES_HERE<GlobalDocumentStore>(@HashSign); // ASSIGNMENT #12
+        let store = borrow_global<GlobalDocumentStore>(@HashSign);
         // Ensure the document exists in the store
         assert!(simple_map::contains_key(&store.documents, &document_id), 4); 
         // Return the document
@@ -164,17 +164,17 @@ module HashSign::hash_sign_01 {
         let store = borrow_global<GlobalDocumentStore>(@HashSign);
         // Initialize an empty vector to store all documents
         let all_documents = vector::empty<Document>();
-        let mut i = 0;
+        let n = 0;
         // Iterate over all possible document IDs
-        while (i < store.document_counter) {
+        while (n < store.document_counter) {
             // If the document exists, add it to the all_documents vector
-            if (simple_map::contains_key(&store.documents, &i)) {
-                vector::push_back(&mut all_documents, *simple_map::borrow(&store.documents, &i));
+            if (simple_map::contains_key(&store.documents, &n)) {
+                vector::push_back(&mut all_documents, *simple_map::borrow(&store.documents, &n));
             };
-            i = i + 1;
+            n = n + 1;
         };
         // Return the vector containing all documents
-        YOUR_CODE_GOES_HERE // ASSIGNMENT #13
+        all_documents
     }
 
     // Get the total number of documents created
